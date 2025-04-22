@@ -40,6 +40,8 @@ const jobInput = formElement.elements.description;
 const profileTitle = document.querySelector('.profile__title');
 const profileDesc = document.querySelector('.profile__description');
 
+const cardFormElement = document.forms['new-place'];
+
 function openModal(modal) {
   if (modal === popupEdit) {
     nameInput.value = profileTitle.textContent;
@@ -92,11 +94,24 @@ function handleEsc(evt) {
 }
 
 // Редактирование имени и информации о себе
-function handleFormSubmit(evt) {
+function handleEditSubmit(evt) {
   evt.preventDefault();
   profileTitle.textContent = nameInput.value;
   profileDesc.textContent = jobInput.value;
   closeModals();
 }
 
-formElement.addEventListener('submit', handleFormSubmit);
+formElement.addEventListener('submit', handleEditSubmit);
+
+// Добавление карточки
+function handleAddSubmit(evt) {
+  evt.preventDefault();
+  const placeNameInput = cardFormElement.elements['place-name'];
+  const linkInput = cardFormElement.elements.link;
+  const card = {name: placeNameInput.value, link: linkInput.value};
+  placesList.prepend(addCard(card, deleteCard))
+  closeModals();
+  cardFormElement.reset()
+}
+
+cardFormElement.addEventListener('submit', handleAddSubmit);
