@@ -2,6 +2,7 @@ import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { createCard, removeCard, toggleLike } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
+import { enableValidation, resetValidation } from "./validate.js";
 
 const cardTemplate = document.querySelector("#card-template").content;
 const placesList = document.querySelector(".places__list");
@@ -70,9 +71,11 @@ const handleEditSubmit = (evt) => {
 };
 
 editBtn.addEventListener("click", () => {
+  resetValidation(editFormElement);
   fillProfileForm();
   openModal(popupEdit);
 });
+enableValidation();
 editFormElement.addEventListener("submit", handleEditSubmit);
 
 // Обработка отправки формы добавления карточки
