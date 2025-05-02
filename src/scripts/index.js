@@ -2,7 +2,15 @@ import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { createCard, removeCard, toggleLike } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
-import { enableValidation, resetValidation } from "./validate.js";
+import { enableValidation, clearValidation } from "./validate.js";
+
+const validateConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inputErrorClass: "popup__input-type-error",
+  errorClass: "popup__input-error-active",
+};
 
 const cardTemplate = document.querySelector("#card-template").content;
 const placesList = document.querySelector(".places__list");
@@ -70,12 +78,13 @@ const handleEditSubmit = (evt) => {
   closeModal(popupEdit);
 };
 
+enableValidation(validateConfig);
+
 editBtn.addEventListener("click", () => {
-  resetValidation(editFormElement);
+  clearValidation(editFormElement, validateConfig);
   fillProfileForm();
   openModal(popupEdit);
 });
-enableValidation();
 editFormElement.addEventListener("submit", handleEditSubmit);
 
 // Обработка отправки формы добавления карточки
@@ -89,11 +98,14 @@ const handleAddSubmit = (evt) => {
     onPreview: openImagePopup,
   });
   placesList.prepend(newCard);
-  cardFormElement.reset();
   closeModal(popupAdd);
 };
 
-addBtn.addEventListener("click", () => openModal(popupAdd));
+addBtn.addEventListener("click", () => {
+  cardFormElement.reset();
+  clearValidation(cardFormElement, validateConfig);
+  openModal(popupAdd);
+});
 cardFormElement.addEventListener("submit", handleAddSubmit);
 
 renderInitialCards();

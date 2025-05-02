@@ -14,7 +14,7 @@
   margin-bottom: 0;
 }
 
-.popup__input_type_error {
+.popup__input-type-error {
   border-bottom: 1px solid rgba(255, 0, 0, 1);
 }
 
