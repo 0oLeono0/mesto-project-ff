@@ -30,12 +30,20 @@ const createCardElement = ({ name, link, likes = [] }, template) => {
   return { cardEl, imgEl };
 };
 
-export const createCard = (data, template, { onDelete, onLike, onPreview }) => {
+export const createCard = (
+  data,
+  template,
+  { onDelete, onLike, onPreview },
+  currentUserId
+) => {
   const { cardEl, imgEl } = createCardElement(data, template);
 
-  cardEl
-    .querySelector(".card__delete-button")
-    .addEventListener("click", () => onDelete(cardEl));
+  const deleteBtn = cardEl.querySelector(".card__delete-button");
+  if (data.owner._id !== currentUserId) {
+    deleteBtn.remove();
+  } else {
+    deleteBtn.addEventListener("click", () => onDelete(cardEl, data._id));
+  }
 
   const likeBtn = cardEl.querySelector(".card__like-button");
   likeBtn.addEventListener("click", () => onLike(likeBtn));
