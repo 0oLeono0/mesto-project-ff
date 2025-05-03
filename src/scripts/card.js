@@ -27,7 +27,8 @@ const createCardElement = ({ name, link, likes = [] }, template) => {
   imgEl.src = link;
   imgEl.alt = name;
   likeCountEl.textContent = likes.length;
-  return { cardEl, imgEl };
+
+  return { cardEl, imgEl, likeCountEl };
 };
 
 export const createCard = (
@@ -36,7 +37,7 @@ export const createCard = (
   { onDelete, onLike, onPreview },
   currentUserId
 ) => {
-  const { cardEl, imgEl } = createCardElement(data, template);
+  const { cardEl, imgEl, likeCountEl } = createCardElement(data, template);
 
   const deleteBtn = cardEl.querySelector(".card__delete-button");
   if (data.owner._id !== currentUserId) {
@@ -46,7 +47,9 @@ export const createCard = (
   }
 
   const likeBtn = cardEl.querySelector(".card__like-button");
-  likeBtn.addEventListener("click", () => onLike(likeBtn));
+  likeBtn.addEventListener("click", () =>
+    onLike(data._id, likeBtn, likeCountEl)
+  );
 
   imgEl.addEventListener("click", () => onPreview(imgEl, cardEl));
 

@@ -2,7 +2,7 @@ import "../pages/index.css";
 import { createCard, removeCard, toggleLike } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
-import { getUser, getCards, editProfile, postCard, deleteCard } from "./api.js";
+import { getUser, getCards, editProfile, postCard, deleteCard, addLike, removeLike } from "./api.js";
 
 const validateConfig = {
   formSelector: ".popup__form",
@@ -60,16 +60,23 @@ const addCardToList = (cardData, userId, prepend = false) => {
         cardToDeleteId = cardId;
         openModal(popupConfirm);
       },
-      onLike: toggleLike,
+      onLike: (cardId, likeBtn, likeCountEl) => {
+        const isLiked = likeBtn.classList.contains("card__like-button_is-active");
+        const action = isLiked ? removeLike : addLike;
+        action(cardId)
+          .then((updatedCard) => {
+            likeBtn.classList.toggle("card__like-button_is-active");
+            likeCountEl.textContent = updatedCard.likes.length;
+          })
+          .catch((err) =>
+            console.error("Ошибка при изменении лайка:", err)
+          );
+      },
       onPreview: openImagePopup,
     },
     userId
   );
-  if (prepend) {
-    placesList.prepend(cardEl);
-  } else {
-    placesList.append(cardEl);
-  }
+  prepend ? placesList.prepend(cardEl) : placesList.append(cardEl);
 }
 
 // Закрытие попапа по клику на крестик или оверлей
