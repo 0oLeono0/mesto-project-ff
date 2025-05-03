@@ -3,6 +3,7 @@ import { initialCards } from "./cards.js";
 import { createCard, removeCard, toggleLike } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
+import { getUser } from "./api.js";
 
 const validateConfig = {
   formSelector: ".popup__form",
@@ -28,6 +29,7 @@ const nameInput = editFormElement.elements.name;
 const jobInput = editFormElement.elements.description;
 const profileTitle = document.querySelector(".profile__title");
 const profileDesc = document.querySelector(".profile__description");
+const profileAvatar = document.querySelector(".profile__image");
 
 const cardFormElement = document.forms["new-place"];
 
@@ -108,4 +110,17 @@ addBtn.addEventListener("click", () => {
 });
 cardFormElement.addEventListener("submit", handleAddSubmit);
 
+const initializeUser = () => {
+  getUser()
+    .then((user) => {
+      profileTitle.textContent = user.name;
+      profileDesc.textContent = user.about;
+      profileAvatar.style.backgroundImage = `url(${user.avatar})`;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
+initializeUser();
 renderInitialCards();
