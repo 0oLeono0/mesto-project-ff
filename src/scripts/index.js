@@ -1,9 +1,8 @@
 import "../pages/index.css";
-import { initialCards } from "./cards.js";
 import { createCard, removeCard, toggleLike } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
-import { getUser } from "./api.js";
+import { getUser, getCards } from "./api.js";
 
 const validateConfig = {
   formSelector: ".popup__form",
@@ -43,16 +42,18 @@ const openImagePopup = (imgEl, cardEl) => {
   openModal(popupImage);
 };
 
-// Рендер стартовых карточек
-const renderInitialCards = () => {
-  initialCards.forEach((data) => {
-    const cardEl = createCard(data, cardTemplate, {
+const addCardToList = (cardData, userId) => {
+  const cardEl = createCard(
+    cardData,
+    cardTemplate,
+    {
       onDelete: removeCard,
       onLike: toggleLike,
       onPreview: openImagePopup,
-    });
-    placesList.append(cardEl);
-  });
+    },
+    userId
+  );
+  placesList.append(cardEl);
 };
 
 // Закрытие попапа по крестику и оверлею
@@ -72,12 +73,25 @@ const fillProfileForm = () => {
   jobInput.value = profileDesc.textContent;
 };
 
-// Обработка отправки формы редактирования профиля
+// Обработчики форм (редактирования профиля и добавления карточки)
 const handleEditSubmit = (evt) => {
   evt.preventDefault();
   profileTitle.textContent = nameInput.value;
   profileDesc.textContent = jobInput.value;
   closeModal(popupEdit);
+};
+
+const handleAddSubmit = (evt) => {
+  evt.preventDefault();
+  const name = cardFormElement.elements["place-name"].value;
+  const link = cardFormElement.elements.link.value;
+  const newCardEl = createCard({ name, link }, cardTemplate, {
+    onDelete: removeCard,
+    onLike: toggleLike,
+    onPreview: openImagePopup,
+  });
+  placesList.prepend(newCardEl);
+  closeModal(popupAdd);
 };
 
 enableValidation(validateConfig);
@@ -89,20 +103,6 @@ editBtn.addEventListener("click", () => {
 });
 editFormElement.addEventListener("submit", handleEditSubmit);
 
-// Обработка отправки формы добавления карточки
-const handleAddSubmit = (evt) => {
-  evt.preventDefault();
-  const name = cardFormElement.elements["place-name"].value;
-  const link = cardFormElement.elements.link.value;
-  const newCard = createCard({ name, link }, cardTemplate, {
-    onDelete: removeCard,
-    onLike: toggleLike,
-    onPreview: openImagePopup,
-  });
-  placesList.prepend(newCard);
-  closeModal(popupAdd);
-};
-
 addBtn.addEventListener("click", () => {
   cardFormElement.reset();
   clearValidation(cardFormElement, validateConfig);
@@ -110,17 +110,14 @@ addBtn.addEventListener("click", () => {
 });
 cardFormElement.addEventListener("submit", handleAddSubmit);
 
-const initializeUser = () => {
-  getUser()
-    .then((user) => {
-      profileTitle.textContent = user.name;
-      profileDesc.textContent = user.about;
-      profileAvatar.style.backgroundImage = `url(${user.avatar})`;
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-};
+Promise.all([getUser(), getCards()])
+  .then(([user, cards]) => {
+    profileTitle.textContent = user.name;
+    profileDesc.textContent = user.about;
+    profileAvatar.style.backgroundImage = `url(${user.avatar})`;
 
-initializeUser();
-renderInitialCards();
+    cards.forEach((card) => addCardToList(card, user._id));
+  })
+  .catch((err) => {
+    console.error("Ошибка при инициализации данных:", err);
+  });
