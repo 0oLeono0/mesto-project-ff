@@ -47,6 +47,12 @@ export const createCard = (
   }
 
   const likeBtn = cardEl.querySelector(".card__like-button");
+  const isLiked = data.likes.some((like) => like._id === currentUserId);
+  if (isLiked) {
+    likeBtn.classList.add("card__like-button_is-active");
+  }
+  likeCountEl.textContent = data.likes.length;
+
   likeBtn.addEventListener("click", () =>
     onLike(data._id, likeBtn, likeCountEl)
   );

@@ -1,3 +1,5 @@
+import { validateImageUrl } from "./api.js";
+
 const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.add(config.inputErrorClass);
@@ -14,26 +16,38 @@ const hideInputError = (formElement, inputElement, config) => {
 
 const isValid = (formElement, inputElement, config) => {
   const value = inputElement.value;
-  if (inputElement.dataset.errorMessage) {
-    const allowedRe = /^[A-Za-zА-Яа-яЁё \-]+$/;
-    if (value !== "" && !allowedRe.test(value)) {
-      inputElement.setCustomValidity(inputElement.dataset.errorMessage);
+  if (inputElement.name === "avatar" && value !== "") {
+    validateImageUrl(value)
+      .then(() => {
+        hideInputError(formElement, inputElement, config);
+        inputElement.setCustomValidity("");
+      })
+      .catch((err) => {
+        showInputError(formElement, inputElement, err, config);
+        inputElement.setCustomValidity(err);
+      });
+  } else {
+    if (inputElement.dataset.errorMessage) {
+      const allowedRe = /^[A-Za-zА-Яа-яЁё \-]+$/;
+      if (value !== "" && !allowedRe.test(value)) {
+        inputElement.setCustomValidity(inputElement.dataset.errorMessage);
+      } else {
+        inputElement.setCustomValidity("");
+      }
     } else {
       inputElement.setCustomValidity("");
     }
-  } else {
-    inputElement.setCustomValidity("");
-  }
 
-  if (!inputElement.validity.valid) {
-    showInputError(
-      formElement,
-      inputElement,
-      inputElement.validationMessage,
-      config
-    );
-  } else {
-    hideInputError(formElement, inputElement, config);
+    if (!inputElement.validity.valid) {
+      showInputError(
+        formElement,
+        inputElement,
+        inputElement.validationMessage,
+        config
+      );
+    } else {
+      hideInputError(formElement, inputElement, config);
+    }
   }
 };
 
