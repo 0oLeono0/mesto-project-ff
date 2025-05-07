@@ -1,5 +1,5 @@
 import "../pages/index.css";
-import { createCard, removeCard } from "./card.js";
+import { createCard, removeCard, handleLikeToggle } from "./card.js"; // Импортируем обработчик лайков
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
 import {
@@ -8,8 +8,6 @@ import {
   editProfile,
   postCard,
   deleteCard,
-  addLike,
-  removeLike,
   updateAvatar,
 } from "./api.js";
 
@@ -54,12 +52,12 @@ let cardToDeleteId = null;
 let cardToDeleteElement = null;
 
 // Открытие попапа с изображением
-const openImagePopup = (imgEl, cardEl) => {
+const openImagePopup = (link, name) => {
   const popupImg = popupImage.querySelector(".popup__image");
   const popupCaption = popupImage.querySelector(".popup__caption");
-  popupImg.src = imgEl.src;
-  popupImg.alt = imgEl.alt;
-  popupCaption.textContent = cardEl.querySelector(".card__title").textContent;
+  popupImg.src = link;
+  popupImg.alt = name;
+  popupCaption.textContent = name;
   openModal(popupImage);
 };
 
@@ -75,7 +73,7 @@ const addCardToList = (cardData, userId, prepend = false) => {
         openModal(popupConfirm);
       },
       onLike: (cardId, likeBtn, likeCountEl) => {
-        handleLikeClick(cardId, likeBtn, likeCountEl);
+        handleLikeToggle(cardId, likeBtn, likeCountEl);
       },
       onPreview: openImagePopup,
     },
@@ -185,35 +183,11 @@ const handleDeleteSubmit = (evt) => {
     });
 };
 
-// Обработчик клика по кнопке лайка
-const handleLikeClick = (cardId, likeBtn, likeCountEl) => {
-  const isLiked = likeBtn.classList.contains("card__like-button_is-active");
-  const action = isLiked ? removeLike : addLike;
-
-  // Немедленно изменяем UI
-  likeBtn.classList.toggle("card__like-button_is-active");
-  let count = Number(likeCountEl.textContent);
-  likeCountEl.textContent = isLiked ? count - 1 : count + 1; // Увеличиваем/уменьшаем на 1
-
-  // Отправляем запрос на сервер
-  action(cardId)
-    .then((updatedCard) => {
-      // Обновляем количество лайков с учётом возможных изменений на сервере
-      likeCountEl.textContent = updatedCard.likes.length;
-    })
-    .catch((err) => {
-      console.error("Ошибка при изменении лайка:", err);
-      // Если ошибка, откатываем изменения
-      likeBtn.classList.toggle("card__like-button_is-active");
-      likeCountEl.textContent = isLiked ? count : count - 1;
-    });
-};
-
 // Обработчик изменения аватара
 const handleAvatarEditSubmit = (evt) => {
   evt.preventDefault();
 
-  const saveButton = cardFormElement.querySelector(
+  const saveButton = avatarFormElement.querySelector(
     validateConfig.submitButtonSelector
   );
   const originalText = saveButton.textContent;

@@ -1,22 +1,31 @@
+import { addLike, removeLike } from "./api.js";
+
 // Удаление карточки
 export const removeCard = (cardEl) => {
   cardEl.remove();
 };
 
 // Переключение лайка и обновление счётчика
-export const toggleLike = (buttonEl) => {
-  const countEl = buttonEl.parentElement.querySelector(".card__like-count");
-  buttonEl.classList.toggle("card__like-button_is-active");
+export const handleLikeToggle = (cardId, likeBtn, likeCountEl) => {
+  const isLiked = likeBtn.classList.contains("card__like-button_is-active");
+  const action = isLiked ? removeLike : addLike;
 
-  let count = Number(countEl.textContent);
-  if (buttonEl.classList.contains("card__like-button_is-active")) {
-    count++;
-  } else {
-    count--;
-  }
-  countEl.textContent = count;
+  likeBtn.classList.toggle("card__like-button_is-active");
+  let count = Number(likeCountEl.textContent);
+  likeCountEl.textContent = isLiked ? count - 1 : count + 1;
+
+  action(cardId)
+    .then((updatedCard) => {
+      likeCountEl.textContent = updatedCard.likes.length;
+    })
+    .catch((err) => {
+      console.error("Ошибка при изменении лайка:", err);
+      likeBtn.classList.toggle("card__like-button_is-active");
+      likeCountEl.textContent = isLiked ? count : count - 1;
+    });
 };
 
+// Создание элемента карточки
 const createCardElement = ({ name, link, likes = [] }, template) => {
   const cardEl = template.querySelector(".card").cloneNode(true);
   const imgEl = cardEl.querySelector(".card__image");
@@ -31,6 +40,7 @@ const createCardElement = ({ name, link, likes = [] }, template) => {
   return { cardEl, imgEl, likeCountEl };
 };
 
+// Создание карточки
 export const createCard = (
   data,
   template,
@@ -57,7 +67,7 @@ export const createCard = (
     onLike(data._id, likeBtn, likeCountEl)
   );
 
-  imgEl.addEventListener("click", () => onPreview(imgEl, cardEl));
+  imgEl.addEventListener("click", () => onPreview(imgEl.src, imgEl.alt)); // Передаем src и alt как аргументы
 
   return cardEl;
 };

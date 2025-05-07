@@ -44,12 +44,14 @@
         <form class="popup__form" name="edit-profile" novalidate>
           <input type="text" name="name" id="name-input" class="popup__input popup__input_type_name" placeholder="Имя"
             required minlength="2" maxlength="40"
-            data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел" />
+            data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел"
+            pattern="[A-Za-zА-Яа-яЁё \-]+" />
           <span class="popup__input-error name-input-error"></span>
 
           <input type="text" name="description" id="description-input"
             class="popup__input popup__input_type_description" placeholder="О себе" required minlength="2"
-            maxlength="200" data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел" />
+            maxlength="200" data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел"
+            pattern="[A-Za-zА-Яа-яЁё \-]+" />
           <span class="popup__input-error description-input-error"></span>
 
           <button type="submit" class="popup__button" disabled>
@@ -66,7 +68,8 @@
         <form class="popup__form" name="new-place" novalidate>
           <input type="text" name="place-name" id="place-name-input" class="popup__input popup__input_type_card-name"
             placeholder="Название" required minlength="2" maxlength="30"
-            data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел" />
+            data-error-message="Разрешены только латинские и кириллические буквы, дефис и пробел"
+            pattern="[A-Za-zА-Яа-яЁё \-]+" />
           <span class="popup__input-error place-name-input-error"></span>
 
           <input type="url" name="link" id="link-input" class="popup__input popup__input_type_url"

@@ -1,5 +1,13 @@
 import { validateImageUrl } from "./api.js";
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.add(config.inputErrorClass);
@@ -16,24 +24,22 @@ const hideInputError = (formElement, inputElement, config) => {
 
 const isValid = (formElement, inputElement, config) => {
   const value = inputElement.value;
+
   if (inputElement.name === "avatar" && value !== "") {
     validateImageUrl(value)
       .then(() => {
         hideInputError(formElement, inputElement, config);
         inputElement.setCustomValidity("");
+        formElement.querySelector(config.submitButtonSelector).disabled = false;
       })
       .catch((err) => {
         showInputError(formElement, inputElement, err, config);
         inputElement.setCustomValidity(err);
+        formElement.querySelector(config.submitButtonSelector).disabled = true;
       });
   } else {
-    if (inputElement.dataset.errorMessage) {
-      const allowedRe = /^[A-Za-zА-Яа-яЁё \-]+$/;
-      if (value !== "" && !allowedRe.test(value)) {
-        inputElement.setCustomValidity(inputElement.dataset.errorMessage);
-      } else {
-        inputElement.setCustomValidity("");
-      }
+    if (inputElement.validity.patternMismatch) {
+      inputElement.setCustomValidity(inputElement.dataset.errorMessage);
     } else {
       inputElement.setCustomValidity("");
     }
@@ -55,7 +61,7 @@ const hasInvalidInput = (inputList) => {
   return inputList.some((input) => !input.validity.valid);
 };
 
-const toggleButtonState = (inputList, buttonElement, config) => {
+const toggleButtonState = (inputList, buttonElement) => {
   if (hasInvalidInput(inputList)) {
     buttonElement.disabled = true;
   } else {
@@ -72,10 +78,13 @@ const setEventListeners = (formElement, config) => {
   toggleButtonState(inputList, buttonElement, config);
 
   inputList.forEach((inputElement) => {
-    inputElement.addEventListener("input", () => {
-      isValid(formElement, inputElement, config);
-      toggleButtonState(inputList, buttonElement, config);
-    });
+    inputElement.addEventListener(
+      "input",
+      debounce(() => {
+        isValid(formElement, inputElement, config);
+        toggleButtonState(inputList, buttonElement, config);
+      }, 500)
+    );
   });
 };
 
