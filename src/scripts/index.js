@@ -72,9 +72,7 @@ const addCardToList = (cardData, userId, prepend = false) => {
         cardToDeleteId = cardId;
         openModal(popupConfirm);
       },
-      onLike: (cardId, likeBtn, likeCountEl) => {
-        handleLikeToggle(cardId, likeBtn, likeCountEl);
-      },
+      onLike: handleLikeToggle,
       onPreview: openImagePopup,
     },
     userId

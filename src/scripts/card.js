@@ -67,7 +67,7 @@ export const createCard = (
     onLike(data._id, likeBtn, likeCountEl)
   );
 
-  imgEl.addEventListener("click", () => onPreview(imgEl.src, imgEl.alt)); // Передаем src и alt как аргументы
+  imgEl.addEventListener("click", () => onPreview(imgEl.src, imgEl.alt));
 
   return cardEl;
 };
